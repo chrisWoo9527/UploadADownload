@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -10,55 +11,55 @@ namespace Common.Service
     public static class FileExtend
     {
 
-        /// <summary>
-        /// 以文件流的形式复制大文件
-        /// </summary>
-        /// <param name="fs">源</param>
-        /// <param name="dest">目标地址</param>
-        /// <param name="bufferSize">缓冲区大小，默认8MB</param>
-        public static void CopyToFile(this Stream fs, string dest, int bufferSize = 1024 * 8 * 1024)
-        {
-            using var fsWrite = new FileStream(dest, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            byte[] buf = new byte[bufferSize];
-            int len;
-            while ((len = fs.Read(buf, 0, buf.Length)) != 0)
-            {
-                fsWrite.Write(buf, 0, len);
-            }
-        }
+        ///// <summary>
+        ///// 以文件流的形式复制大文件
+        ///// </summary>
+        ///// <param name="fs">源</param>
+        ///// <param name="dest">目标地址</param>
+        ///// <param name="bufferSize">缓冲区大小，默认8MB</param>
+        //public static void CopyToFile(this Stream fs, string dest, int bufferSize = 1024 * 8 * 1024)
+        //{
+        //    using var fsWrite = new FileStream(dest, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+        //    byte[] buf = new byte[bufferSize];
+        //    int len;
+        //    while ((len = fs.Read(buf, 0, buf.Length)) != 0)
+        //    {
+        //        fsWrite.Write(buf, 0, len);
+        //    }
+        //}
 
-        /// <summary>
-        /// 以文件流的形式复制大文件(异步方式)
-        /// </summary>
-        /// <param name="fs">源</param>
-        /// <param name="dest">目标地址</param>
-        /// <param name="bufferSize">缓冲区大小，默认8MB</param>
-        public static async Task CopyToFileAsync(this Stream fs, string dest, int bufferSize = 1024 * 1024 * 8)
-        {
-            using var fsWrite = new FileStream(dest, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            byte[] buf = new byte[bufferSize];
-            int len;
-            await Task.Run(() =>
-            {
-                while ((len = fs.Read(buf, 0, buf.Length)) != 0)
-                {
-                    fsWrite.Write(buf, 0, len);
-                }
-            }).ConfigureAwait(true);
-        }
+        ///// <summary>
+        ///// 以文件流的形式复制大文件(异步方式)
+        ///// </summary>
+        ///// <param name="fs">源</param>
+        ///// <param name="dest">目标地址</param>
+        ///// <param name="bufferSize">缓冲区大小，默认8MB</param>
+        //public static async Task CopyToFileAsync(this Stream fs, string dest, int bufferSize = 1024 * 1024 * 8)
+        //{
+        //    using var fsWrite = new FileStream(dest, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+        //    byte[] buf = new byte[bufferSize];
+        //    int len;
+        //    await Task.Run(() =>
+        //    {
+        //        while ((len = fs.Read(buf, 0, buf.Length)) != 0)
+        //        {
+        //            fsWrite.Write(buf, 0, len);
+        //        }
+        //    }).ConfigureAwait(true);
+        //}
 
-        /// <summary>
-        /// 将内存流转储成文件
-        /// </summary>
-        /// <param name="ms"></param>
-        /// <param name="filename"></param>
-        public static void SaveFile(this MemoryStream ms, string filename)
-        {
-            using var fs = new FileStream(filename, FileMode.Create, FileAccess.Write);
-            byte[] buffer = ms.ToArray(); // 转化为byte格式存储
-            fs.Write(buffer, 0, buffer.Length);
-            fs.Flush();
-        }
+        ///// <summary>
+        ///// 将内存流转储成文件
+        ///// </summary>
+        ///// <param name="ms"></param>
+        ///// <param name="filename"></param>
+        //public static void SaveFile(this MemoryStream ms, string filename)
+        //{
+        //    using var fs = new FileStream(filename, FileMode.Create, FileAccess.Write);
+        //    byte[] buffer = ms.ToArray(); // 转化为byte格式存储
+        //    fs.Write(buffer, 0, buffer.Length);
+        //    fs.Flush();
+        //}
 
         /// <summary>
         /// 计算文件的 MD5 值
@@ -67,12 +68,12 @@ namespace Common.Service
         /// <returns>MD5 值16进制字符串</returns>
         public static string GetFileMD5(this Stream fs) => HashFile(fs, "md5");
 
-        /// <summary>
-        /// 计算文件的 sha1 值
-        /// </summary>
-        /// <param name="fs">源文件流</param>
-        /// <returns>sha1 值16进制字符串</returns>
-        public static string GetFileSha1(this Stream fs) => HashFile(fs, "sha1");
+        ///// <summary>
+        ///// 计算文件的 sha1 值
+        ///// </summary>
+        ///// <param name="fs">源文件流</param>
+        ///// <returns>sha1 值16进制字符串</returns>
+        //public static string GetFileSha1(this Stream fs) => HashFile(fs, "sha1");
 
         /// <summary>
         /// 计算文件的哈希值
@@ -122,6 +123,14 @@ namespace Common.Service
             {
                 return string.Format("{0:0.00} bytes", fileLength);
             };
+        }
+
+        public static long GetFilesLength(this List<IFormFile> fs)
+        {
+            long fileLength = 0;
+            fs.ForEach(w => fileLength += w.OpenReadStream().Length);
+            return fileLength;
+
         }
     }
 }

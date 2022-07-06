@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 Log.Logger = new LoggerConfiguration().
-    MinimumLevel.Debug().
+    MinimumLevel.Information().
     WriteTo.File($"{AppContext.BaseDirectory}00_Logs\\log.log", rollingInterval: RollingInterval.Day)
              .CreateLogger();
 
@@ -39,13 +39,13 @@ builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
 // 限制托管服务器大小10G
 builder.Services.Configure<FormOptions>(x =>
 {
-    x.MultipartBodyLengthLimit = (long)10 * 1024 * 1024 * 1024;
+    x.MultipartBodyLengthLimit = (long)1024 * 1024 * 1024;
     x.ValueCountLimit = int.MaxValue;
 });
 
 builder.Services.Configure<KestrelServerOptions>(x =>
 {
-    x.Limits.MaxRequestBodySize = (long)10 * 1024 * 1024 * 1024;
+    x.Limits.MaxRequestBodySize = (long)1024 * 1024 * 1024;
 });
 
 var app = builder.Build();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Service.FileManager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace Common.Service.CommonDto
     {
         public bool Status { get; set; }
         public string? Message { get; set; }
-        public TimeSpan? Seconds { get; set; }
+        public int? Seconds { get; set; }
+        public FileInformation? fileInformation { get; set; }
     }
 }

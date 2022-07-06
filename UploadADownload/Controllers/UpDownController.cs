@@ -1,9 +1,11 @@
 ﻿using Common.Service;
 using Common.Service.CommonDto;
 using Common.Service.FileManager;
+using Masuit.Tools.Files;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using UploadADownload.Service;
 
 namespace UploadADownload.Controllers
 {
@@ -14,65 +16,35 @@ namespace UploadADownload.Controllers
 
         private readonly IConfiguration _configuration;
         private readonly IFileService _fileService;
+        private readonly IUDloadService _uDloadService;
 
-        public UpDownController(IConfiguration configuration, IFileService fileService)
+        public UpDownController(IConfiguration configuration, IFileService fileService, IUDloadService uDloadService)
         {
             _configuration = configuration;
             _fileService = fileService;
+            _uDloadService = uDloadService;
         }
 
         /// <summary>
-        /// 文件上传下载
+        /// 文件上传
         /// </summary>
         /// <param name="file">文件流</param>
         /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult<FileUpLoadDto>> UploadFile(IFormFile file)
         {
-            if (file == null || file.Length == 0)
-                return new FileUpLoadDto { Status = false, Message = "stream is not null" };
+            return await _uDloadService.FileUpLoadAsync(file);
+        }
 
-            string? FtpPath = _configuration.GetSection("Ftp").Value;
-
-            if (string.IsNullOrEmpty(FtpPath))
-            {
-                return new FileUpLoadDto { Status = false, Message = "Ftp 文件夹不存在" };
-            }
-
-            if (file.Length > (long)10 * 1024 * 1024 * 1024)
-                return new FileUpLoadDto { Status = false, Message = "出于限制无法上传大于 1G 文件" };
-
-            try
-            {
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                stopwatch.Start();
-                string path = Path.Combine(FtpPath, file.FileName);
-
-                string? DeskPath = Directory.GetFiles(path, "*", SearchOption.AllDirectories).FirstOrDefault(w => w == path);
-
-                if (!string.IsNullOrEmpty(DeskPath))
-                {
-                    using var deskStream = new FileStream(DeskPath, FileMode.Open, FileAccess.Read);
-                    if(deskStream.GetFileMD5()==file.OpenReadStream().GetFileMD5())
-                    {
-                        return new FileUpLoadDto { Status = false, Message = "MD5值相同，无需重复上传" };
-                    }
-                }
-
-                var directoryPath = Path.GetDirectoryName(path);
-
-                if (!Directory.Exists(directoryPath))
-                    Directory.CreateDirectory(directoryPath);
-
-                await file.OpenReadStream().CopyToFileAsync(path);
-                stopwatch.Stop();
-
-                return new FileUpLoadDto { Status = true, Message = "", Seconds = stopwatch.Elapsed };
-            }
-            catch (Exception ex)
-            {
-                return new FileUpLoadDto { Status = false, Message = ex.Message };
-            }
+        /// <summary>
+        /// 多文件上传
+        /// </summary>
+        /// <param name="file">文件流</param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ActionResult<List<FileUpLoadDto>>> UploadFileMore(List<IFormFile> files)
+        {
+            return await _uDloadService.FileUpLoadAsync(files);
         }
 
 
