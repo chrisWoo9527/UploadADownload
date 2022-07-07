@@ -47,11 +47,14 @@ namespace UploadADownload.Service
 
             if (!string.IsNullOrEmpty(DeskPath))
             {
-                using var deskStream = new FileStream(DeskPath, FileMode.Open, FileAccess.Read);
-                if (deskStream.GetFileMD5() == file.OpenReadStream().GetFileMD5())
+                using (var deskStream = new FileStream(DeskPath, FileMode.Open, FileAccess.Read))
                 {
-                    return new FileUpLoadDto { Status = false, Message = "MD5值相同，无需重复上传" };
+                    if (deskStream.GetFileMD5() == file.OpenReadStream().GetFileMD5())
+                    {
+                        return new FileUpLoadDto { Status = false, Message = "MD5值相同，无需重复上传" };
+                    }
                 }
+
             }
             #endregion
             try
