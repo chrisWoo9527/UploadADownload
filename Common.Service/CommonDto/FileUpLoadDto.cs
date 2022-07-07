@@ -12,6 +12,6 @@ namespace Common.Service.CommonDto
         public bool Status { get; set; }
         public string? Message { get; set; }
         public int? Seconds { get; set; }
-        public FileInformation? fileInformation { get; set; }
+        public FileInformation? fileInfo { get; set; }
     }
 }

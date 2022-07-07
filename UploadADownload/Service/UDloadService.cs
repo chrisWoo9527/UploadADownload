@@ -5,6 +5,7 @@ using Common.Service.FileManager;
 using Masuit.Tools.Files;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace UploadADownload.Service
 {
@@ -21,11 +22,16 @@ namespace UploadADownload.Service
 
         public async Task<FileUpLoadDto> FileUpLoadAsync(IFormFile file)
         {
+
+            var filePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string? FtpPath = Path.Combine(filePath, _configuration.GetSection("Ftp").Value);
+
+            if (!Directory.Exists(FtpPath))
+                Directory.CreateDirectory(FtpPath);
+
             #region 数据判断
             if (file == null || file.Length == 0)
                 return (new FileUpLoadDto { Status = false, Message = "stream is not null" });
-
-            string? FtpPath = _configuration.GetSection("Ftp").Value;
 
             if (string.IsNullOrEmpty(FtpPath))
             {
@@ -61,7 +67,7 @@ namespace UploadADownload.Service
                 await file.OpenReadStream().CopyToFileAsync(path);
                 stopwatch.Stop();
 
-                return new FileUpLoadDto { Status = true, Message = "", Seconds = stopwatch.Elapsed.Seconds };
+                return new FileUpLoadDto { Status = true, Message = "", Seconds = stopwatch.Elapsed.Seconds, fileInfo = _fileService.GetFileInformation(path) };
             }
             catch (Exception ex)
             {
@@ -71,11 +77,16 @@ namespace UploadADownload.Service
 
         public async Task<List<FileUpLoadDto>> FileUpLoadAsync(List<IFormFile> files)
         {
+
+            string? filePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string? FtpPath = Path.Combine(filePath, _configuration.GetSection("Ftp").Value);
+
+            if (!Directory.Exists(FtpPath))
+                Directory.CreateDirectory(FtpPath);
+
             #region 数据判断
             if (files == null)
                 return new List<FileUpLoadDto> { new FileUpLoadDto { Status = false, Message = "stream is not null" } };
-
-            string? FtpPath = _configuration.GetSection("Ftp").Value;
 
             if (string.IsNullOrEmpty(FtpPath))
             {
@@ -122,7 +133,7 @@ namespace UploadADownload.Service
                          w.OpenReadStream().CopyToFile(path);
                          stopwatch.Stop();
 
-                         list.Add(new FileUpLoadDto { Status = true, Message = "", Seconds = stopwatch.Elapsed.Seconds, fileInformation = _fileService.GetFileInformation(path) });
+                         list.Add(new FileUpLoadDto { Status = true, Message = "", Seconds = stopwatch.Elapsed.Seconds, fileInfo = _fileService.GetFileInformation(path) });
                      }
                      catch (Exception ex)
                      {
@@ -134,9 +145,23 @@ namespace UploadADownload.Service
             return await Task.FromResult(list);
         }
 
-        public Task<List<FileInformation>> GetFileInformationAsync()
+        public List<FileInformation> GetFileInformation()
         {
-            throw new NotImplementedException();
+            List<FileInformation> list = new List<FileInformation>();
+            string? filePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if (!Directory.Exists(filePath))
+                Directory.CreateDirectory(filePath);
+            var fileList = Directory.GetFiles(Path.Combine(filePath, _configuration.GetSection("Ftp").Value)).ToList();
+            fileList.ForEach(file =>
+            {
+                list.Add(_fileService.GetFileInformation(file));
+            });
+
+            var fileInformations = (from a in list
+                                    orderby a.LastModifyTime descending
+                                    select a).ToList();
+
+            return fileInformations;
         }
 
     }

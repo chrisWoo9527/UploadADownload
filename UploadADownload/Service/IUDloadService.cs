@@ -10,6 +10,6 @@ namespace UploadADownload.Service
 
         Task<List<FileUpLoadDto>> FileUpLoadAsync(List<IFormFile> files);
 
-        Task<List<FileInformation>> GetFileInformationAsync();
+        List<FileInformation> GetFileInformation();
     }
 }

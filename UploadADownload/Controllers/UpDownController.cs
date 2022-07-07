@@ -4,7 +4,9 @@ using Common.Service.FileManager;
 using Masuit.Tools.Files;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using System.Diagnostics;
+using System.Reflection;
 using UploadADownload.Service;
 
 namespace UploadADownload.Controllers
@@ -33,6 +35,7 @@ namespace UploadADownload.Controllers
         [HttpPost]
         public async Task<ActionResult<FileUpLoadDto>> UploadFile(IFormFile file)
         {
+            Log.Information("UploadFile:入参进入");
             return await _uDloadService.FileUpLoadAsync(file);
         }
 
@@ -53,38 +56,39 @@ namespace UploadADownload.Controllers
         /// </summary>
         /// <param name="fileName">文件名称(含后缀)</param>
         /// <returns></returns>
-        [HttpPost]
-        public async Task<ActionResult> Download(string fileName)
+        [HttpGet]
+        public async Task<ActionResult<FileStream>> Download(string fileName)
         {
             if (fileName == null)
             {
-                return Content("filename not present");
+                return NotFound("filename not present");
             }
+            string? filePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var path = Path.Combine(_configuration.GetSection("Ftp").Value, fileName);
+            var path = Path.Combine(filePath, _configuration.GetSection("Ftp").Value, fileName);
 
-            var memory = new MemoryStream();
-
-            using (var stream = new FileStream(path, FileMode.Open))
+            if (!System.IO.File.Exists(path))
             {
-                await stream.CopyToAsync(memory);
+                return NotFound("filename not present");
             }
 
-            memory.Position = 0;
-            return File(memory, FileContentType.GetContentType(path), fileName);
+            using (var memory = new MemoryStream())
+            {
+                using (var stream = new FileStream(path, FileMode.OpenOrCreate,FileAccess.ReadWrite))
+                {
+                    await stream.CopyToAsync(memory);
+                }
+
+                memory.Position = 0;
+                return File(memory, FileContentType.GetContentType(path), fileName);
+            }
         }
 
 
         [HttpGet]
         public ActionResult<List<FileInformation>> SelectFiles()
         {
-            List<FileInformation> list = new List<FileInformation>();
-            var fileList = Directory.GetFiles(Path.Combine(_configuration.GetSection("Ftp").Value)).ToList();
-            fileList.ForEach(file =>
-            {
-                list.Add(_fileService.GetFileInformation(file));
-            });
-            return list;
+            return _uDloadService.GetFileInformation();
         }
     }
 }
