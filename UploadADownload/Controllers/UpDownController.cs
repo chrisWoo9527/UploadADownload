@@ -61,27 +61,25 @@ namespace UploadADownload.Controllers
         {
             if (fileName == null)
             {
-                return NotFound("filename not present");
+                return NotFound("文件名不允许为空~");
             }
             string? filePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var path = Path.Combine(filePath, _configuration.GetSection("Ftp").Value, fileName);
+            string path = Path.Combine(filePath, _configuration.GetSection("Ftp").Value, fileName);
 
             if (!System.IO.File.Exists(path))
             {
-                return NotFound("filename not present");
+                return NotFound($"远程服务器没有找到名称为【{fileName}】 的文件~");
             }
 
-            using (var memory = new MemoryStream())
-            {
-                using (var stream = new FileStream(path, FileMode.OpenOrCreate,FileAccess.ReadWrite))
-                {
-                    await stream.CopyToAsync(memory);
-                }
+            //  这个流还不能关闭 关闭了客户端读不到数据 死坑
+            var memory = new MemoryStream();
 
-                memory.Position = 0;
-                return File(memory, FileContentType.GetContentType(path), fileName);
-            }
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+            await stream.CopyToAsync(memory);
+            memory.Position = 0;
+            return File(memory, FileContentType.GetContentType(path), fileName);
+
         }
 
 
