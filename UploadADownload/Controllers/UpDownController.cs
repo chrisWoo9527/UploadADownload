@@ -79,7 +79,6 @@ namespace UploadADownload.Controllers
             await stream.CopyToAsync(memory);
             memory.Position = 0;
             return File(memory, FileContentType.GetContentType(path), fileName);
-
         }
 
 
