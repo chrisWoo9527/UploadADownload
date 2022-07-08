@@ -82,6 +82,29 @@ namespace UploadADownload.Controllers
         }
 
 
+        [HttpDelete]
+        public ActionResult<ResultMessage> DeleteFile(string fileName)
+        {
+            if (fileName == null)
+            {
+                return new ResultMessage { Status = false, Message = "文件名不允许为空~" };
+            }
+            string? filePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            string path = Path.Combine(filePath, _configuration.GetSection("Ftp").Value, fileName);
+
+            if (!System.IO.File.Exists(path))
+            {
+                return new ResultMessage { Status = false, Message = $"远程服务器没有找到名称为【{fileName}】 的文件~" };
+            }
+
+            System.IO.File.Delete(path);
+
+            return new ResultMessage { Status = true, Message = $"" };
+
+        }
+
+
         [HttpGet]
         public ActionResult<List<FileInformation>> SelectFiles()
         {

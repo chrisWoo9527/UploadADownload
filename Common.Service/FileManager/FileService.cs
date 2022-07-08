@@ -14,7 +14,7 @@ namespace Common.Service.FileManager
     {
         public FileInformation GetFileInformation(string filePath)
         {
-            var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
             var fileInformation = new FileInformation
             {
                 FileName = Path.GetFileName(filePath),

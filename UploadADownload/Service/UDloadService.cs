@@ -116,6 +116,7 @@ namespace UploadADownload.Service
                  if (!string.IsNullOrEmpty(DeskPath))
                  {
                      using var deskStream = new FileStream(DeskPath, FileMode.Open, FileAccess.Read);
+
                      if (deskStream.GetFileMD5() == w.OpenReadStream().GetFileMD5())
                      {
                          list.Add(new FileUpLoadDto { Status = false, Message = "MD5值相同，无需重复上传" });
@@ -133,7 +134,8 @@ namespace UploadADownload.Service
                          if (!Directory.Exists(directoryPath))
                              Directory.CreateDirectory(directoryPath);
 
-                         w.OpenReadStream().CopyToFile(path);
+                         using Stream stream = w.OpenReadStream();
+                         stream.CopyToFile(path);
                          stopwatch.Stop();
 
                          list.Add(new FileUpLoadDto { Status = true, Message = "", Seconds = stopwatch.Elapsed.Seconds, fileInfo = _fileService.GetFileInformation(path) });
