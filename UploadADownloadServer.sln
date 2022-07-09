@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UploadADownload", "UploadADownload\UploadADownload.csproj", "{E6004762-282D-4FEA-B48D-DFE0CDF390B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UploadADownload", "UploadADownload\UploadADownload.csproj", "{E6004762-282D-4FEA-B48D-DFE0CDF390B8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.Service", "Common.Service\Common.Service.csproj", "{C66EE2E8-A508-4004-BA19-05255B96BAA0}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{8E12DB14-9F3A-4C90-B3D4-FBDE7D4A1DE2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{C66EE2E8-A508-4004-BA19-05255B96BAA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C66EE2E8-A508-4004-BA19-05255B96BAA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C66EE2E8-A508-4004-BA19-05255B96BAA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E12DB14-9F3A-4C90-B3D4-FBDE7D4A1DE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E12DB14-9F3A-4C90-B3D4-FBDE7D4A1DE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E12DB14-9F3A-4C90-B3D4-FBDE7D4A1DE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E12DB14-9F3A-4C90-B3D4-FBDE7D4A1DE2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
