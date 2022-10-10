@@ -32,6 +32,8 @@ namespace UploadADownload.Controllers
         /// </summary>
         /// <param name="file">文件流</param>
         /// <returns></returns>
+        [RequestSizeLimit(1024 * 1024 * 5)]
+        [DisableRequestSizeLimit]
         [HttpPost]
         public async Task<ActionResult<FileUpLoadDto>> UploadFile(IFormFile file)
         {
@@ -44,6 +46,8 @@ namespace UploadADownload.Controllers
         /// </summary>
         /// <param name="file">文件流</param>
         /// <returns></returns>
+        [RequestSizeLimit(1024 * 1024 * 5)]
+        [DisableRequestSizeLimit]
         [HttpPost]
         public async Task<ActionResult<List<FileUpLoadDto>>> UploadFileMore(List<IFormFile> files)
         {
@@ -56,6 +60,8 @@ namespace UploadADownload.Controllers
         /// </summary>
         /// <param name="fileName">文件名称(含后缀)</param>
         /// <returns></returns>
+        [RequestSizeLimit(1024 * 1024 * 5)]
+        [DisableRequestSizeLimit]
         [HttpGet]
         public async Task<ActionResult<FileStream>> Download(string fileName)
         {
